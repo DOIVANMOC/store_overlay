@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-forest-dark: #163D2B;
+    --color-forest-green: #387A4B;
+    --color-forest-moss: #78966A;
+    --color-ivory: #F5F6F0;
+    --color-forest-black: #101812;
+    --color-neutral-muted: #A5AEA5;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: #F5F6F0;
+    color: #101812;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar matching forest theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F0F2EB;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #A5AEA5;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #78966A;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Delicate atmospheric ambient light beam */
+.ambient-beam {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(120, 150, 106, 0.15) 0%,
+    rgba(56, 122, 75, 0.05) 50%,
+    transparent 80%
+  );
+}
+
+/* Subtle noise texture simulation */
+.forest-mist {
+  background-image: radial-gradient(rgba(245, 246, 240, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Streamer frame mockup utility */
+.stream-display-aspect {
+  aspect-ratio: 16 / 9;
+}
