@@ -20,6 +20,8 @@ interface ProductSectionProps {
   onSelectProduct: (product: Product) => void;
   onPreviewSimulator: (product: Product) => void;
   onAddToCart: (product: Product) => void;
+  isAdmin?: boolean;
+  onDeleteProduct?: (productId: string) => void;
 }
 
 export const ProductSection: React.FC<ProductSectionProps> = ({
@@ -29,6 +31,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
   onSelectProduct,
   onPreviewSimulator,
   onAddToCart,
+  isAdmin = false,
+  onDeleteProduct,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('Tất cả nền tảng');
@@ -271,6 +275,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 onSelectProduct={onSelectProduct}
                 onPreviewSimulator={onPreviewSimulator}
                 onAddToCart={onAddToCart}
+                isAdmin={isAdmin}
+                onDeleteProduct={onDeleteProduct}
               />
             ))}
           </div>

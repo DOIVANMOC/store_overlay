@@ -10,7 +10,8 @@ import {
   BookOpen, 
   Check, 
   Edit3,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 import { User } from '../types/user';
 import { authService } from '../utils/auth';
@@ -24,6 +25,7 @@ interface UserProfileModalProps {
   onOpenCart: () => void;
   onOpenGuides: () => void;
   onUserUpdated: (updatedUser: User) => void;
+  onOpenAdmin?: () => void;
 }
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({
@@ -34,6 +36,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onOpenCart,
   onOpenGuides,
   onUserUpdated,
+  onOpenAdmin,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user.displayName);
@@ -159,8 +162,24 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </div>
               </div>
 
+              {/* Admin Panel Quick Trigger */}
+              {user.role === 'admin' && onOpenAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    onClose();
+                    onOpenAdmin();
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-bold text-amber-900 flex items-center justify-center gap-2 transition-colors shadow-sm"
+                >
+                  <ShieldCheck className="w-4 h-4 text-amber-600" />
+                  <span>Mở Bảng Quản Trị Website (Đăng & Xóa Bài)</span>
+                </button>
+              )}
+
               {/* Quick Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => {

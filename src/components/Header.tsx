@@ -8,7 +8,8 @@ import {
   X, 
   Sparkles, 
   BookOpen,
-  User as UserIcon
+  User as UserIcon,
+  ShieldCheck
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 import { User } from '../types/user';
@@ -24,6 +25,7 @@ interface HeaderProps {
   currentUser: User | null;
   onOpenAuth: (mode?: 'login' | 'register') => void;
   onOpenProfile: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -37,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentUser,
   onOpenAuth,
   onOpenProfile,
+  onOpenAdmin,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -171,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Right Action Icons: Search, SFX Audio Toggle, User Auth/Profile, Cart */}
+          {/* Right Action Icons: Search, SFX Audio Toggle, Admin, User, Cart */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Quick Search Button */}
             <button
@@ -200,6 +203,21 @@ export const Header: React.FC<HeaderProps> = ({
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
 
+            {/* Admin Panel Quick Action Button (Visible only to Admin) */}
+            {currentUser?.role === 'admin' && onOpenAdmin && (
+              <button
+                onClick={() => {
+                  sounds.playClick();
+                  onOpenAdmin();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all shadow-forest-sm group"
+                title="Quản trị viên: Đăng tải & Xóa bài đăng"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                <span className="hidden md:inline font-mono font-bold">Admin Panel</span>
+              </button>
+            )}
+
             {/* User Account / Login Button */}
             {currentUser ? (
               <button
@@ -216,7 +234,7 @@ export const Header: React.FC<HeaderProps> = ({
                     alt={currentUser.displayName}
                     className="w-6 h-6 rounded-lg object-cover bg-forest-700 border border-forest-500"
                   />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-forest-900" />
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-forest-900 ${currentUser.role === 'admin' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
                 </div>
                 <span className="hidden sm:inline font-display max-w-[90px] truncate">
                   {currentUser.displayName}
@@ -272,6 +290,20 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-3 pt-3 border-t border-forest-800 bg-forest-900/95 rounded-2xl p-4 space-y-2.5 animate-fade-in shadow-xl">
+            {/* Admin Quick Action Button on Mobile */}
+            {currentUser?.role === 'admin' && onOpenAdmin && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdmin();
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center justify-center gap-2 mb-2"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <span>Bảng Quản Trị Admin (Đăng/Xóa Bài)</span>
+              </button>
+            )}
+
             {/* User Profile / Auth Section in Mobile Menu */}
             {currentUser ? (
               <div className="p-2.5 rounded-xl bg-forest-800/80 border border-forest-700 flex items-center justify-between mb-2">
@@ -282,7 +314,12 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-9 h-9 rounded-xl object-cover border border-forest-500"
                   />
                   <div>
-                    <div className="text-xs font-bold text-ivory font-display">{currentUser.displayName}</div>
+                    <div className="text-xs font-bold text-ivory font-display flex items-center gap-1.5">
+                      <span>{currentUser.displayName}</span>
+                      {currentUser.role === 'admin' && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 font-mono font-bold">ADMIN</span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-neutralMuted font-mono">@{currentUser.username}</div>
                   </div>
                 </div>

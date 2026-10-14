@@ -7,8 +7,8 @@ import {
   Sparkles, 
   Flame, 
   Check, 
-  Star,
-  Download
+  Download,
+  Trash2
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -17,6 +17,8 @@ interface ProductCardProps {
   onSelectProduct: (product: Product) => void;
   onPreviewSimulator: (product: Product) => void;
   onAddToCart: (product: Product) => void;
+  isAdmin?: boolean;
+  onDeleteProduct?: (productId: string) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -24,6 +26,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onSelectProduct,
   onPreviewSimulator,
   onAddToCart,
+  isAdmin = false,
+  onDeleteProduct,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -40,6 +44,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sounds.playClick();
+    if (window.confirm(`[ADMIN] Bạn có chắc chắn muốn xóa bài đăng "${product.title}" khỏi website?`)) {
+      onDeleteProduct?.(product.id);
+    }
+  };
+
   // Determine which preview image to show (secondary preview on hover!)
   const activeImage = isHovered && product.previews.startingSoon !== product.previews.obsScene 
     ? product.previews.startingSoon 
@@ -47,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div 
-      className="group bg-white rounded-2xl border border-ivory-border hover:border-forest-400 transition-all duration-300 flex flex-col overflow-hidden shadow-forest-sm hover:shadow-forest-md hover:-translate-y-1"
+      className="group bg-white rounded-2xl border border-ivory-border hover:border-forest-400 transition-all duration-300 flex flex-col overflow-hidden shadow-forest-sm hover:shadow-forest-md hover:-translate-y-1 relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -75,6 +87,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           )}
         </div>
+
+        {/* Admin Quick Delete Button */}
+        {isAdmin && onDeleteProduct && (
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            className="absolute top-2.5 right-2.5 z-20 p-1.5 rounded-lg bg-red-600/90 hover:bg-red-600 text-white shadow-md border border-red-400 transition-transform transform hover:scale-110"
+            title="[Admin] Xóa bài đăng này"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {/* Platform tag bottom right */}
         <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-forest-950/80 backdrop-blur-sm text-[10px] font-mono text-ivory/90 border border-forest-800">

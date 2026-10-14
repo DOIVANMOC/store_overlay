@@ -16,7 +16,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Flame,
-  Star
+  Star,
+  Trash2
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -26,6 +27,8 @@ interface ProductDetailModalProps {
   onAddToCart: (product: Product) => void;
   allProducts: Product[];
   onSelectRelated: (product: Product) => void;
+  isAdmin?: boolean;
+  onDeleteProduct?: (productId: string) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -34,6 +37,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onAddToCart,
   allProducts,
   onSelectRelated,
+  isAdmin = false,
+  onDeleteProduct,
 }) => {
   if (!product) return null;
 
@@ -289,6 +294,24 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     </>
                   )}
                 </button>
+
+                {/* Admin Direct Delete Action */}
+                {isAdmin && onDeleteProduct && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playClick();
+                      if (window.confirm(`[ADMIN] Bạn có chắc chắn muốn xóa bài đăng "${product.title}" khỏi website?`)) {
+                        onDeleteProduct(product.id);
+                        onClose();
+                      }
+                    }}
+                    className="w-full py-2.5 rounded-xl border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                    <span>[Admin] Xóa bài đăng này khỏi hệ thống</span>
+                  </button>
+                )}
 
                 <div className="flex items-center justify-center gap-4 text-[11px] text-neutralMuted pt-1">
                   <span className="flex items-center gap-1">

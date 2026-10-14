@@ -3,8 +3,31 @@ import { User, StoredUser, AuthResponse } from '../types/user';
 const USERS_STORAGE_KEY = 'forest_users_db';
 const CURRENT_USER_STORAGE_KEY = 'forest_current_user';
 
-// Pre-seeded default users for convenience and instant 1-click testing
+export const ADMIN_EMAILS = ['honggiahuy933@gmail.com'];
+
+export function isAdminIdentity(email?: string, username?: string): boolean {
+  if (email && ADMIN_EMAILS.includes(email.toLowerCase().trim())) {
+    return true;
+  }
+  if (username && (username.toLowerCase().trim() === 'honggiahuy' || username.toLowerCase().trim() === 'honggiahuy933')) {
+    return true;
+  }
+  return false;
+}
+
+// Pre-seeded default users with admin account for honggiahuy933@gmail.com
 const DEFAULT_USERS: StoredUser[] = [
+  {
+    id: 'user-admin-huy',
+    username: 'honggiahuy',
+    displayName: 'Huy Hoàng (Admin)',
+    email: 'honggiahuy933@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    role: 'admin',
+    bio: 'Quản trị viên tối cao Forest Overlay Studio | Quyền quản lý và đăng tải khung livestream',
+    passwordHash: '123456'
+  },
   {
     id: 'user-demo-1',
     username: 'streamer_demo',
@@ -34,11 +57,17 @@ class AuthService {
     try {
       const data = localStorage.getItem(USERS_STORAGE_KEY);
       if (!data) {
-        // Initialize with default demo users
         localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
         return DEFAULT_USERS;
       }
-      return JSON.parse(data);
+      const parsed: StoredUser[] = JSON.parse(data);
+      // Ensure admin user exists in stored users
+      const hasAdmin = parsed.some(u => isAdminIdentity(u.email, u.username));
+      if (!hasAdmin) {
+        parsed.unshift(DEFAULT_USERS[0]);
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       return DEFAULT_USERS;
     }
@@ -57,7 +86,12 @@ class AuthService {
     try {
       const data = localStorage.getItem(CURRENT_USER_STORAGE_KEY);
       if (!data) return null;
-      return JSON.parse(data);
+      const user: User = JSON.parse(data);
+      // Automatically enforce admin role for honggiahuy933@gmail.com
+      if (isAdminIdentity(user.email, user.username)) {
+        user.role = 'admin';
+      }
+      return user;
     } catch {
       return null;
     }
@@ -67,6 +101,9 @@ class AuthService {
   private setCurrentUser(user: User | null): void {
     try {
       if (user) {
+        if (isAdminIdentity(user.email, user.username)) {
+          user.role = 'admin';
+        }
         localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(user));
       } else {
         localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
@@ -86,7 +123,7 @@ class AuthService {
     const cleanUsername = username.trim().toLowerCase();
     const cleanPassword = password.trim();
     const cleanDisplayName = displayName?.trim() || username.trim();
-    const cleanEmail = email?.trim() || `${cleanUsername}@streamer.vn`;
+    const cleanEmail = email?.trim().toLowerCase() || `${cleanUsername}@streamer.vn`;
 
     // Validation
     if (!cleanUsername || cleanUsername.length < 3) {
@@ -105,12 +142,15 @@ class AuthService {
 
     // Check if username already exists
     const existingUser = users.find(
-      u => u.username.toLowerCase() === cleanUsername || (email && u.email.toLowerCase() === cleanEmail.toLowerCase())
+      u => u.username.toLowerCase() === cleanUsername || (email && u.email.toLowerCase() === cleanEmail)
     );
 
     if (existingUser) {
       return { success: false, message: 'Tên tài khoản hoặc email này đã tồn tại trên hệ thống.' };
     }
+
+    // Determine admin status
+    const isAdmin = isAdminIdentity(cleanEmail, cleanUsername);
 
     // Create new user object
     const newUser: StoredUser = {
@@ -120,26 +160,27 @@ class AuthService {
       email: cleanEmail,
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanUsername}&backgroundColor=163D2B`,
       createdAt: new Date().toISOString(),
-      role: 'streamer',
-      bio: 'Streamer mới gia nhập cộng đồng Forest Overlay Studio',
+      role: isAdmin ? 'admin' : 'streamer',
+      bio: isAdmin ? 'Quản trị viên tối cao Forest Overlay Studio' : 'Streamer mới gia nhập cộng đồng Forest Overlay',
       passwordHash: cleanPassword
     };
 
     users.push(newUser);
     this.saveStoredUsers(users);
 
-    // Omit passwordHash before saving to session
     const { passwordHash: _, ...publicUser } = newUser;
     this.setCurrentUser(publicUser);
 
     return {
       success: true,
-      message: 'Tạo tài khoản thành công! Chào mừng bạn đến với Forest Overlay.',
+      message: isAdmin 
+        ? 'Tạo tài khoản Quản trị viên (Admin) thành công!' 
+        : 'Tạo tài khoản thành công! Chào mừng bạn đến với Forest Overlay.',
       user: publicUser
     };
   }
 
-  // Login with username and password
+  // Login with username or email and password
   public login(identifier: string, password: string): AuthResponse {
     const cleanIdentifier = identifier.trim().toLowerCase();
     const cleanPassword = password.trim();
@@ -167,13 +208,19 @@ class AuthService {
       return { success: false, message: 'Mật khẩu không chính xác. Vui lòng kiểm tra lại.' };
     }
 
-    // Success
+    // Check & grant admin if identifier matches admin email
+    if (isAdminIdentity(found.email, found.username)) {
+      found.role = 'admin';
+    }
+
     const { passwordHash: _, ...publicUser } = found;
     this.setCurrentUser(publicUser);
 
     return {
       success: true,
-      message: `Chào mừng ${publicUser.displayName} đã quay trở lại!`,
+      message: publicUser.role === 'admin'
+        ? `Xin chào Quản trị viên ${publicUser.displayName}! Bạn có toàn quyền quản lý hệ thống.`
+        : `Chào mừng ${publicUser.displayName} đã quay trở lại!`,
       user: publicUser
     };
   }
@@ -202,6 +249,10 @@ class AuthService {
       ...updatedData
     };
 
+    if (isAdminIdentity(updatedUser.email, updatedUser.username)) {
+      updatedUser.role = 'admin';
+    }
+
     users[index] = updatedUser;
     this.saveStoredUsers(users);
 
@@ -218,6 +269,7 @@ class AuthService {
   // Get sample demo accounts
   public getDemoAccounts(): { username: string; password: string; role: string; name: string }[] {
     return [
+      { username: 'honggiahuy', password: '123456', role: 'Quản trị viên (Admin)', name: 'Huy Hoàng (honggiahuy933@gmail.com)' },
       { username: 'streamer_demo', password: '123456', role: 'Pro Creator', name: 'Minh Streamer' },
       { username: 'vortex_gaming', password: '123456', role: 'VIP Streamer', name: 'Vortex Gaming' }
     ];

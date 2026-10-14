@@ -1,3 +1,5 @@
+export type UserRole = 'admin' | 'creator' | 'vip' | 'streamer' | 'pro';
+
 export interface User {
   id: string;
   username: string;
@@ -5,7 +7,7 @@ export interface User {
   email: string;
   avatar?: string;
   createdAt: string;
-  role: 'creator' | 'vip' | 'streamer' | 'pro';
+  role: UserRole;
   bio?: string;
 }
 

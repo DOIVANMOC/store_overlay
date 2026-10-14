@@ -19,11 +19,27 @@ import { SearchModal } from './components/SearchModal';
 import { GuidesModal } from './components/GuidesModal';
 import { AuthModal } from './components/AuthModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { AdminModal } from './components/AdminModal';
 import { sounds } from './utils/audio';
 import { X } from 'lucide-react';
 
 export function App() {
-  const [products] = useState<Product[]>(PRODUCTS);
+  // Dynamic products database with localStorage persistence
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const saved = localStorage.getItem('forest_products_db');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.error('Error loading products from storage:', err);
+    }
+    return PRODUCTS;
+  });
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [simulatorProduct, setSimulatorProduct] = useState<Product | null>(null);
@@ -33,6 +49,7 @@ export function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'login' | 'register'>('login');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   // Shopping cart state with localStorage persistence
   const [cart, setCart] = useState<Product[]>(() => {
@@ -49,11 +66,44 @@ export function App() {
   const [isGuidesOpen, setIsGuidesOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('home');
 
+  const isAdmin = currentUser?.role === 'admin';
+
   useEffect(() => {
     try {
       localStorage.setItem('forest_cart_items', JSON.stringify(cart));
     } catch {}
   }, [cart]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('forest_products_db', JSON.stringify(products));
+    } catch (err) {
+      console.error('Failed to save products to storage:', err);
+    }
+  }, [products]);
+
+  // Product operations for Admin
+  const handleAddProduct = (newProduct: Product) => {
+    setProducts((prev) => [newProduct, ...prev]);
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    setProducts((prev) => prev.filter((p) => p.id !== productId));
+    if (selectedProduct?.id === productId) {
+      setSelectedProduct(null);
+    }
+    if (simulatorProduct?.id === productId) {
+      setSimulatorProduct(null);
+    }
+    setCart((prev) => prev.filter((p) => p.id !== productId));
+  };
+
+  const handleResetDefaultProducts = () => {
+    setProducts(PRODUCTS);
+    try {
+      localStorage.removeItem('forest_products_db');
+    } catch {}
+  };
 
   // Cart operations
   const handleAddToCart = (product: Product) => {
@@ -87,6 +137,7 @@ export function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setIsAdminModalOpen(false);
   };
 
   const handleUserUpdated = (updatedUser: User) => {
@@ -129,6 +180,7 @@ export function App() {
         currentUser={currentUser}
         onOpenAuth={handleOpenAuth}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
       {/* Main Content Sections */}
@@ -157,6 +209,8 @@ export function App() {
           onSelectProduct={(p) => setSelectedProduct(p)}
           onPreviewSimulator={(p) => setSimulatorProduct(p)}
           onAddToCart={handleAddToCart}
+          isAdmin={isAdmin}
+          onDeleteProduct={handleDeleteProduct}
         />
 
         {/* 5. Curated Collections by Style */}
@@ -195,6 +249,8 @@ export function App() {
           onAddToCart={handleAddToCart}
           allProducts={products}
           onSelectRelated={(p) => setSelectedProduct(p)}
+          isAdmin={isAdmin}
+          onDeleteProduct={handleDeleteProduct}
         />
       )}
 
@@ -262,6 +318,19 @@ export function App() {
           onOpenCart={() => setIsCartOpen(true)}
           onOpenGuides={() => setIsGuidesOpen(true)}
           onUserUpdated={handleUserUpdated}
+          onOpenAdmin={() => setIsAdminModalOpen(true)}
+        />
+      )}
+
+      {/* MODAL 8: Admin Management Panel (Available exclusively to admin honggiahuy933@gmail.com) */}
+      {isAdmin && (
+        <AdminModal
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+          products={products}
+          onAddProduct={handleAddProduct}
+          onDeleteProduct={handleDeleteProduct}
+          onResetDefaultProducts={handleResetDefaultProducts}
         />
       )}
 
