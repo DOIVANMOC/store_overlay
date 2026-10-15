@@ -117,12 +117,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               Cảm ơn bạn đã lựa chọn FOREST OVERLAY! Đường link tải tệp tin và mã bản quyền đã sẵn sàng.
             </p>
 
-            <div className="w-full bg-forest-50 p-4 rounded-2xl border border-ivory-border text-left space-y-2">
+            <div className="w-full bg-forest-50 p-4 rounded-2xl border border-ivory-border text-left space-y-2.5 max-h-56 overflow-y-auto">
               <div className="text-[11px] font-mono text-neutralMuted">Gói đã đặt ({cart.length}):</div>
               {cart.map(c => (
-                <div key={c.id} className="text-xs font-semibold text-forest-900 flex items-center justify-between">
-                  <span className="truncate pr-2">• {c.title}</span>
-                  <span className="text-emerald-700 font-mono text-[11px]">Sẵn sàng</span>
+                <div key={c.id} className="p-2 bg-white rounded-xl border border-ivory-border flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-forest-900 truncate">• {c.title}</div>
+                    <div className="text-[10px] text-neutralMuted font-mono">
+                      {c.projectPackName || `${c.includedFiles?.length || 4} tệp cài đặt`}
+                    </div>
+                  </div>
+                  {c.projectDownloadUrl ? (
+                    <a
+                      href={c.projectDownloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-emerald-700 text-ivory text-[10px] font-bold hover:bg-emerald-600 transition-colors shrink-0"
+                    >
+                      Mở Link Tải
+                    </a>
+                  ) : (
+                    <span className="text-emerald-700 font-mono text-[10px] font-bold shrink-0">
+                      Đã cấp quyền
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -130,13 +148,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <button
               onClick={() => {
                 sounds.playChime();
-                alert('Bắt đầu tải trọn bộ file cài đặt OBS Studio (.zip)...');
+                const downloadManifest = {
+                  orderId: `ORDER-${Date.now()}`,
+                  purchasedPackages: cart.map(item => ({
+                    id: item.id,
+                    title: item.title,
+                    resolution: item.resolution,
+                    cloudLink: item.projectDownloadUrl || "Trực tiếp trong tài nguyên website",
+                    files: item.includedFiles.map(f => f.name)
+                  })),
+                  licenseHolder: "Streamer VIP",
+                  createdAt: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(downloadManifest, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Forest_Overlay_Package_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
                 handleFinish();
               }}
               className="w-full py-3 rounded-xl bg-forest-800 hover:bg-forest-700 text-ivory text-xs font-semibold flex items-center justify-center gap-2 shadow-sm"
             >
               <Download className="w-4 h-4" />
-              <span>Tải Toàn Bộ File Ngay (.ZIP)</span>
+              <span>Tải Toàn Bộ Tệp Cài Đặt (.JSON / .ZIP)</span>
             </button>
           </div>
         ) : cart.length > 0 ? (

@@ -13,6 +13,9 @@ export interface IncludedFile {
   name: string;
   type: string;
   size: string;
+  downloadUrl?: string; // Link to download (e.g. Google Drive, direct URL)
+  fileData?: string;    // Base64 Data URL or Blob URL for client-uploaded files
+  isProjectSource?: boolean; // Highlighted as main project asset / source file
 }
 
 export interface ProductPreviewScenes {
@@ -49,9 +52,14 @@ export interface Product {
   previews: ProductPreviewScenes;
   tags: string[];
   mockupPreset: 'forest_woods' | 'clean_pine' | 'cyber_emerald' | 'moss_stone' | 'bonsai_tiktok' | 'silent_mist' | 'sprout_starter' | 'whisper_willow';
+  // Project files attached by Admin
+  projectDownloadUrl?: string; // Master cloud link (Google Drive, Mega, MediaFire, Dropbox, etc.)
+  projectPackName?: string;    // Package archive name, e.g. "Cyber_Neon_OBS_Full_Project.zip"
+  projectPackSize?: string;    // Size label, e.g. "85.4 MB"
 }
 
 export interface CartItem {
   product: Product;
   addedAt: number;
 }
+

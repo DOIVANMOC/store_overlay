@@ -17,7 +17,10 @@ import {
   ShieldCheck,
   Flame,
   Star,
-  Trash2
+  Trash2,
+  FolderArchive,
+  Cloud,
+  ExternalLink
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -55,6 +58,59 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     onAddToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2200);
+  };
+
+  // Direct Project File Downloader
+  const handleDownloadFile = (file: { name: string; size: string; type: string; downloadUrl?: string; fileData?: string }) => {
+    sounds.playChime();
+
+    // 1. If file has direct base64 data URL uploaded by admin:
+    if (file.fileData) {
+      const a = document.createElement('a');
+      a.href = file.fileData;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+
+    // 2. If file has online download link (e.g. Google Drive, CDN):
+    if (file.downloadUrl) {
+      window.open(file.downloadUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // 3. Fallback: Generate real configuration and asset manifest file for OBS Studio
+    const manifest = {
+      productName: product.title,
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      resolution: product.resolution,
+      fps: product.fps,
+      license: "FOREST OVERLAY - Lifetime Commercial & Personal Broadcast License",
+      obsQuickSetup: {
+        recommendedCanvas: product.resolution.split(' ')[0] || "1920x1080",
+        frameRate: product.fps || 60,
+        sourcesIncluded: product.includedFiles.map(f => f.name)
+      },
+      installationSteps: product.installSteps,
+      supportEmail: "honggiahuy933@gmail.com",
+      downloadedAt: new Date().toISOString()
+    };
+
+    const isJson = file.name.endsWith('.json');
+    const content = JSON.stringify(manifest, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = isJson ? file.name : `${file.name.replace(/\.[^/.]+$/, "")}_OBS_Setup.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // Find related products (same category or related tags)
@@ -330,27 +386,103 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Section 2: Included Files & Installation Guide */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-ivory-border">
             
-            {/* Left: Included Files List */}
-            <div className="space-y-3">
-              <h3 className="font-display font-bold text-base text-forest-900 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-forest-600" />
-                <span>Danh sách file đính kèm ({product.includedFiles.length} tệp)</span>
-              </h3>
-              <div className="bg-forest-50/50 rounded-2xl border border-ivory-border divide-y divide-ivory-border overflow-hidden text-xs">
-                {product.includedFiles.map((file, idx) => (
-                  <div key={idx} className="p-3 flex items-center justify-between hover:bg-white transition-colors">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-forest-100 flex items-center justify-center text-forest-800 font-mono text-[10px] font-bold">
-                        {file.name.split('.').pop()?.toUpperCase()}
+            {/* Left: Included Files List & Master Project Pack */}
+            <div className="space-y-4">
+              
+              {/* Master Project Pack Banner (If attached by admin or has download link) */}
+              {(product.projectDownloadUrl || product.projectPackName) && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-forest-900 to-forest-800 text-ivory border border-emerald-500/30 shadow-sm flex items-center justify-between gap-3 animate-fade-in">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-forest-700/90 text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-500/40">
+                      <FolderArchive className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-mono text-emerald-300 font-bold uppercase tracking-wider">
+                        Gói dự án trọn bộ (Master Project Pack)
                       </div>
-                      <div>
-                        <div className="font-semibold text-forest-900">{file.name}</div>
-                        <div className="text-[10px] text-neutralMuted">{file.type}</div>
+                      <div className="text-xs font-bold text-ivory truncate">
+                        {product.projectPackName || `${product.title}_Full_Project.zip`}
+                      </div>
+                      <div className="text-[10px] text-neutralMuted font-mono">
+                        Dung lượng: {product.projectPackSize || '48.5 MB'}
                       </div>
                     </div>
-                    <span className="font-mono text-neutralMuted text-[11px]">{file.size}</span>
                   </div>
-                ))}
+
+                  {product.projectDownloadUrl ? (
+                    <a
+                      href={product.projectDownloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-ivory text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95"
+                    >
+                      <Cloud className="w-3.5 h-3.5" />
+                      <span>Tải Từ Đám Mây</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadFile({ 
+                        name: product.projectPackName || `${product.title}_Project.zip`, 
+                        size: product.projectPackSize || '48.5 MB', 
+                        type: 'Master Project Package' 
+                      })}
+                      className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-ivory text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Tải Về Trọn Bộ</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-bold text-base text-forest-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-forest-600" />
+                    <span>Danh sách file đính kèm ({product.includedFiles.length} tệp)</span>
+                  </h3>
+                  <span className="text-[10px] font-mono text-neutralMuted">
+                    Bấm tải về từng tệp riêng lẻ
+                  </span>
+                </div>
+
+                <div className="bg-forest-50/50 rounded-2xl border border-ivory-border divide-y divide-ivory-border overflow-hidden text-xs">
+                  {product.includedFiles.map((file, idx) => (
+                    <div key={idx} className="p-3 flex items-center justify-between hover:bg-white transition-colors gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-forest-100 flex items-center justify-center text-forest-800 font-mono text-[10px] font-bold shrink-0">
+                          {file.name.split('.').pop()?.toUpperCase() || 'FILE'}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-forest-900 truncate">
+                            {file.name}
+                          </div>
+                          <div className="text-[10px] text-neutralMuted flex items-center gap-1.5">
+                            <span>{file.type}</span>
+                            <span>•</span>
+                            <span className="font-mono">{file.size}</span>
+                            {file.fileData && (
+                              <span className="text-emerald-700 font-semibold">• Tệp sẵn sàng</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Download Action for each file */}
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadFile(file)}
+                        className="px-2.5 py-1.5 rounded-lg bg-forest-800 hover:bg-forest-700 text-ivory text-[11px] font-semibold flex items-center gap-1.5 shrink-0 transition-colors shadow-xs active:scale-95"
+                        title={`Tải xuống ${file.name}`}
+                      >
+                        <Download className="w-3 h-3 text-emerald-300" />
+                        <span>Tải về</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
