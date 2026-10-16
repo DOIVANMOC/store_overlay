@@ -47,7 +47,7 @@ export const AiChatWidget: React.FC = () => {
     {
       id: 'msg-welcome-2',
       sender: 'ai',
-      text: '✨ Để đặt thiết kế khung livestream riêng (Custom Brand Overlay) theo tên kênh và màu sắc cá nhân, bạn hãy nhắn tin trực tiếp qua Zalo: 0876.065.085 để nhận phác thảo và báo giá nhé!',
+      text: '✨ Để đặt thiết kế khung livestream riêng theo yêu cầu (ưu đãi chỉ từ 199k – 299k), bạn hãy nhắn tin trực tiếp qua Zalo: 0876.065.085 để nhận phác thảo và lên mẫu nhé!',
       timestamp: 'Vừa xong',
       showZaloAction: true
     }
@@ -77,9 +77,9 @@ export const AiChatWidget: React.FC = () => {
   const getAiResponse = (query: string): { text: string; showZalo: boolean } => {
     const q = query.toLowerCase();
 
-    if (q.includes('giá') || q.includes('nhiêu') || q.includes('chi phí') || q.includes('báo giá')) {
+    if (q.includes('giá') || q.includes('nhiêu') || q.includes('chi phí') || q.includes('báo giá') || q.includes('tốn')) {
       return {
-        text: '💰 Về chi phí thiết kế riêng:\n• Gói Khung Webcam + Alerts: từ 250.000đ – 450.000đ.\n• Gói Trọn Bộ Stream Suite (Webcam, Màn hình chờ, Chuyển cảnh Stinger, Banner, Chatbox): từ 650.000đ – 1.200.000đ tùy độ phức tạp động 60FPS.\n\n👉 Bạn hãy gửi ý tưởng hoặc logo qua Zalo 0876.065.085 để designer chốt giá ưu đãi nhất nhé!',
+        text: '💰 Báo giá thiết kế khung livestream theo yêu cầu:\n• Mức giá siêu ưu đãi: chỉ từ 199.000đ – 299.000đ / gói thiết kế riêng (đầy đủ khung webcam, thông báo và tệp cài đặt OBS Studio mượt mà 60FPS).\n• Được xem trước bản vẽ phác thảo demo và hỗ trợ chỉnh sửa 1-1 cho đến khi bạn ưng ý nhất!\n\n👉 Bạn hãy gửi tên kênh hoặc ý tưởng qua Zalo 0876.065.085 để designer chốt giá 199k – 299k và lên mẫu ngay nhé!',
         showZalo: true
       };
     }
@@ -322,11 +322,11 @@ export const AiChatWidget: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => handleSendMessage('Báo giá thiết kế riêng bao nhiêu?')}
+              onClick={() => handleSendMessage('Báo giá thiết kế riêng (199k - 299k)')}
               className="px-2.5 py-1 rounded-full bg-forest-50 hover:bg-forest-100 text-forest-800 border border-ivory-border whitespace-nowrap transition-colors flex items-center gap-1"
             >
               <DollarSign className="w-3 h-3 text-emerald-600" />
-              <span>Báo giá</span>
+              <span>Báo giá (199k - 299k)</span>
             </button>
             <button
               type="button"
