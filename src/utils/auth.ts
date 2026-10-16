@@ -15,7 +15,7 @@ export function isAdminIdentity(email?: string, username?: string): boolean {
   return false;
 }
 
-// Pre-seeded default users with admin account for honggiahuy933@gmail.com
+// Pre-seeded verified admin account for honggiahuy933@gmail.com
 const DEFAULT_USERS: StoredUser[] = [
   {
     id: 'user-admin-huy',
@@ -26,28 +26,6 @@ const DEFAULT_USERS: StoredUser[] = [
     createdAt: '2026-01-01T00:00:00.000Z',
     role: 'admin',
     bio: 'Quản trị viên tối cao Forest Overlay Studio | Quyền quản lý và đăng tải khung livestream',
-    passwordHash: '123456'
-  },
-  {
-    id: 'user-demo-1',
-    username: 'streamer_demo',
-    displayName: 'Minh Streamer',
-    email: 'minh.streamer@forestoverlay.io',
-    avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&q=80',
-    createdAt: '2026-01-15T08:00:00.000Z',
-    role: 'pro',
-    bio: 'Twitch Partner & Content Creator | Streamer game sinh tồn & FPS',
-    passwordHash: '123456'
-  },
-  {
-    id: 'user-demo-2',
-    username: 'vortex_gaming',
-    displayName: 'Vortex Gaming',
-    email: 'vortex@gaming.vn',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-    createdAt: '2026-03-01T10:30:00.000Z',
-    role: 'vip',
-    bio: 'YouTuber & Streamer chuyên nghiệp | Fan trung thành của Forest Overlay',
     passwordHash: '123456'
   }
 ];
@@ -266,13 +244,31 @@ class AuthService {
     };
   }
 
-  // Get sample demo accounts
-  public getDemoAccounts(): { username: string; password: string; role: string; name: string }[] {
-    return [
-      { username: 'honggiahuy', password: '123456', role: 'Quản trị viên (Admin)', name: 'Huy Hoàng (honggiahuy933@gmail.com)' },
-      { username: 'streamer_demo', password: '123456', role: 'Pro Creator', name: 'Minh Streamer' },
-      { username: 'vortex_gaming', password: '123456', role: 'VIP Streamer', name: 'Vortex Gaming' }
-    ];
+  // Reset password via email or username
+  public resetPassword(identifier: string, newPass: string): AuthResponse {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPass = newPass.trim();
+
+    if (!cleanPass || cleanPass.length < 6) {
+      return { success: false, message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' };
+    }
+
+    const users = this.getStoredUsers();
+    const index = users.findIndex(
+      u => u.username.toLowerCase() === cleanId || u.email.toLowerCase() === cleanId
+    );
+
+    if (index === -1) {
+      return { success: false, message: 'Không tìm thấy tài khoản với tên đăng nhập hoặc email này.' };
+    }
+
+    users[index].passwordHash = cleanPass;
+    this.saveStoredUsers(users);
+
+    return {
+      success: true,
+      message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay với mật khẩu mới.'
+    };
   }
 }
 

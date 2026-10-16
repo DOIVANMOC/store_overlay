@@ -284,6 +284,8 @@ export function App() {
         cart={cart}
         onRemoveFromCart={handleRemoveFromCart}
         onClearCart={handleClearCart}
+        currentUser={currentUser}
+        onOpenProfile={() => setIsProfileOpen(true)}
       />
 
       {/* MODAL 4: Search Modal */}
