@@ -20,6 +20,7 @@ import { GuidesModal } from './components/GuidesModal';
 import { AuthModal } from './components/AuthModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { AdminModal } from './components/AdminModal';
+import { AiChatWidget } from './components/AiChatWidget';
 import { sounds } from './utils/audio';
 import { X } from 'lucide-react';
 
@@ -335,6 +336,9 @@ export function App() {
           onResetDefaultProducts={handleResetDefaultProducts}
         />
       )}
+
+      {/* FLOATING WIDGET: AI Chat Assistant & Custom Overlay Zalo 0876065085 */}
+      <AiChatWidget />
 
     </div>
   );
