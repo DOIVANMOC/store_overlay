@@ -13,7 +13,6 @@ import { CuratedCollections } from './components/CuratedCollections';
 import { StreamerWorkflow } from './components/StreamerWorkflow';
 import { BrandPhilosophy } from './components/BrandPhilosophy';
 import { NewsletterSection } from './components/NewsletterSection';
-import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { GuidesModal } from './components/GuidesModal';
@@ -232,15 +231,6 @@ export function App() {
         <NewsletterSection />
 
       </main>
-
-      {/* 9. Footer */}
-      <Footer
-        onOpenGuides={() => setIsGuidesOpen(true)}
-        onSelectCategory={(cat) => {
-          setSelectedCategory(cat);
-          handleExploreClick();
-        }}
-      />
 
       {/* MODAL 1: Product Detail View */}
       {selectedProduct && (
