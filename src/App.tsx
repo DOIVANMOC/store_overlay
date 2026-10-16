@@ -11,8 +11,6 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 import { StreamSimulator } from './components/StreamSimulator';
 import { CuratedCollections } from './components/CuratedCollections';
 import { StreamerWorkflow } from './components/StreamerWorkflow';
-import { BrandPhilosophy } from './components/BrandPhilosophy';
-import { NewsletterSection } from './components/NewsletterSection';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { GuidesModal } from './components/GuidesModal';
@@ -223,12 +221,6 @@ export function App() {
 
         {/* 6. Streamer 3-Step Workflow */}
         <StreamerWorkflow />
-
-        {/* 7. Brand Philosophy & Craftsmanship */}
-        <BrandPhilosophy />
-
-        {/* 8. Newsletter & VIP Streamer Club */}
-        <NewsletterSection />
 
       </main>
 
