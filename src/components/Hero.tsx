@@ -1,15 +1,9 @@
 import React from 'react';
 import { 
   ArrowRight, 
-  Sparkles, 
-  CheckCircle2, 
   Tv, 
-  Zap, 
-  ShieldCheck, 
-  Download,
-  Flame,
-  Layers,
-  Leaf
+  Leaf, 
+  CheckCircle2 
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -51,14 +45,6 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Left Column: Brand Copy & Actions (7 Cols) */}
           <div className="lg:col-span-7 text-left space-y-6">
             
-            {/* Studio Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-800/80 border border-forest-600/60 text-xs text-forest-200 font-medium tracking-wide shadow-forest-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-mono text-emerald-300 uppercase tracking-wider text-[11px]">Bản quyền độc quyền 2026</span>
-              <span className="text-forest-400">•</span>
-              <span>OBS 30+ & TikTok Live Ready</span>
-            </div>
-
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ivory tracking-tight leading-[1.12]">
               Bring Your Stream <br />
@@ -96,22 +82,6 @@ export const Hero: React.FC<HeroProps> = ({
               >
                 <span>Xem 3 sản phẩm nổi bật</span>
               </button>
-            </div>
-
-            {/* Trust Points Bar */}
-            <div className="pt-4 grid grid-cols-3 gap-4 border-t border-forest-800/80 max-w-lg text-xs">
-              <div className="space-y-1">
-                <div className="font-mono font-bold text-ivory text-sm">60 FPS</div>
-                <div className="text-neutralMuted">Zero dropped frames</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-mono font-bold text-emerald-400 text-sm">1-Click</div>
-                <div className="text-neutralMuted">Tự động import OBS</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-mono font-bold text-ivory text-sm">100%</div>
-                <div className="text-neutralMuted">Bản quyền vĩnh viễn</div>
-              </div>
             </div>
 
           </div>

@@ -9,8 +9,6 @@ import { FeaturedCarousel } from './components/FeaturedCarousel';
 import { ProductSection } from './components/ProductSection';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { StreamSimulator } from './components/StreamSimulator';
-import { CuratedCollections } from './components/CuratedCollections';
-import { StreamerWorkflow } from './components/StreamerWorkflow';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { GuidesModal } from './components/GuidesModal';
@@ -210,17 +208,6 @@ export function App() {
           isAdmin={isAdmin}
           onDeleteProduct={handleDeleteProduct}
         />
-
-        {/* 5. Curated Collections by Style */}
-        <CuratedCollections
-          onSelectCategory={(cat) => {
-            setSelectedCategory(cat);
-            handleExploreClick();
-          }}
-        />
-
-        {/* 6. Streamer 3-Step Workflow */}
-        <StreamerWorkflow />
 
       </main>
 

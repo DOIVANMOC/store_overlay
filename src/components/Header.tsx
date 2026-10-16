@@ -135,20 +135,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={() => {
-                handleNavClick('collections');
-                const el = document.getElementById('curated-collections');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
-                activeNav === 'collections'
-                  ? 'bg-forest-700 text-ivory shadow-sm'
-                  : 'text-neutralMuted hover:text-ivory'
-              }`}
-            >
-              Bộ sưu tập
-            </button>
-            <button
-              onClick={() => {
                 handleNavClick('free', 'free');
                 const el = document.getElementById('explore-collection');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -374,16 +360,6 @@ export const Header: React.FC<HeaderProps> = ({
               className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-ivory hover:bg-forest-800 transition-colors"
             >
               Overlay & Gói Stream
-            </button>
-            <button
-              onClick={() => {
-                handleNavClick('collections');
-                const el = document.getElementById('curated-collections');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-ivory hover:bg-forest-800 transition-colors"
-            >
-              Bộ sưu tập theo phong cách
             </button>
             <button
               onClick={() => {
